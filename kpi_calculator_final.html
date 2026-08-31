@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPI Калькулятор · Locomotive Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#ffffff;
+  --bg:#f4f4f1;
+  --panel:#ffffff;
+  --line:#e2e2dc;
+  --line2:#d0d0c8;
+  --text:#141414;
+  --text2:#3d3d38;
+  --muted:#8a8a82;
+  --black:#141414;
+  --black2:#1e1e1e;
+  --accent:#edff00;
+  --green:#16a34a;
+  --orange:#d97706;
+  --red:#dc2626;
+  --blue:#1d5fa4;
+  --disp:'Manrope',sans-serif;
+  --body:'Inter',sans-serif;
+  --r:6px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* NAV — black */
+nav{position:sticky;top:0;z-index:100;background:var(--black);
+  padding:14px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.nav-left{display:flex;align-items:center;gap:14px}
+.nav-logo{height:26px}
+.nav-tag{font-size:12px;font-weight:500;color:rgba(255,255,255,.35);letter-spacing:.06em}
+.nav-tabs{display:flex;gap:2px;background:rgba(255,255,255,.08);border-radius:4px;padding:3px}
+.nav-tab{padding:7px 18px;font-size:12px;font-weight:500;color:rgba(255,255,255,.45);
+  cursor:pointer;border:none;background:none;border-radius:3px;transition:all .2s}
+.nav-tab:hover{color:#fff}
+.nav-tab.active{background:var(--accent);color:var(--black);font-weight:700}
+
+/* HERO — black */
+.hero{background:var(--black);padding:56px 40px 48px;border-bottom:2px solid var(--accent)}
+.hero h1{font-family:'Manrope',sans-serif;font-size:clamp(32px,5vw,56px);font-weight:800;
+  line-height:1.08;letter-spacing:-.02em;color:#fff}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero-sub{display:none}
+.hero-eye{display:none}
+
+/* SECTIONS */
+.section{display:none;padding:32px 40px 64px;max-width:1020px;margin:0 auto}
+.section.active{display:block}
+.sec-title{margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.sec-title h2{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:var(--text);margin-bottom:3px}
+.sec-title p{font-size:13px;color:var(--muted)}
+
+/* METRIC CARD — white */
+.metric-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+.metric-head{padding:20px 24px 16px;cursor:pointer;display:flex;align-items:flex-start;
+  justify-content:space-between;gap:16px;transition:background .15s}
+.metric-head:hover{background:var(--bg)}
+.m-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;
+  background:var(--black);color:var(--accent);padding:3px 10px;border-radius:3px;margin-bottom:9px}
+.m-name{font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px}
+.m-def{font-size:13px;color:var(--muted);line-height:1.55;max-width:560px}
+
+/* Toggle — prominent circle */
+.m-toggle{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .25s;font-size:14px;color:var(--text2);
+  font-weight:700;cursor:pointer;
+}
+.metric-card.open .m-toggle{background:var(--black);border-color:var(--black);color:var(--accent);transform:rotate(180deg)}
+.metric-head:hover .m-toggle{border-color:var(--black)}
+
+.metric-body{display:none;border-top:1px solid var(--line)}
+.metric-card.open .metric-body{display:block}
+
+/* INFO GRID */
+.body-grid{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+.info-block{padding:18px 24px;border-right:1px solid var(--line)}
+.info-block:last-child{border-right:none}
+.info-block.yl{border-left:3px solid var(--accent);background:rgba(237,255,0,.03)}
+.info-block h4{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:8px;
+  text-transform:uppercase;letter-spacing:.06em}
+.info-block p,.info-block li{font-size:13px;color:var(--text2);line-height:1.65}
+.info-block ul{padding-left:14px}.info-block li{margin-bottom:3px}
+
+/* FORMULA — black block */
+.formula-box{background:var(--black);padding:18px 24px;border-bottom:1px solid rgba(255,255,255,.06)}
+.formula-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+  color:rgba(255,255,255,.35);margin-bottom:8px}
+.formula{font-family:monospace;font-size:13px;color:rgba(255,255,255,.85);line-height:1.7}
+.formula em{color:var(--accent);font-style:normal;font-weight:600}
+
+/* CALC */
+.calc-wrap{padding:20px 24px 24px}
+.calc-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:14px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;font-weight:500;color:var(--text2)}
+.field input{background:var(--bg);border:1.5px solid var(--line2);color:var(--text);
+  padding:9px 12px;font-size:14px;font-family:var(--body);outline:none;border-radius:var(--r);
+  transition:border-color .15s;width:100%}
+.field input:focus{border-color:var(--black);background:#fff}
+.field input::placeholder{color:var(--line2)}
+
+/* RESULTS — black block */
+.results-row{background:var(--black);border-radius:var(--r);padding:14px;display:grid;gap:8px;margin-bottom:0}
+.results-row.three{grid-template-columns:1fr 1fr 1fr}
+.result{background:var(--black2);border-radius:4px;padding:14px 16px}
+.r-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.35);margin-bottom:6px}
+.r-val{font-family:'Manrope',sans-serif;font-size:26px;font-weight:800;color:#fff}
+.r-val.sm{font-size:18px}
+.r-hint{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
+.r-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;
+  padding:3px 10px;border-radius:20px;margin-top:6px}
+.ok{background:rgba(22,163,74,.15);color:#4ade80}
+.warn{background:rgba(217,119,6,.15);color:#fbbf24}
+.bad{background:rgba(220,38,38,.15);color:#f87171}
+
+/* EXAMPLE */
+.example{background:var(--bg);border-top:1px solid var(--line);padding:14px 24px}
+.ex-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-bottom:6px}
+.ex-txt{font-size:13px;color:var(--text2);line-height:1.65}
+.ex-txt strong{color:var(--text)}
+
+/* DIFF NOTE (ROAS vs ROMI) */
+.diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.diff-card{background:var(--black2);border-radius:4px;padding:16px 18px}
+.diff-card h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px}
+.diff-card p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.65}
+.diff-use{font-size:11px;font-weight:600;color:var(--accent);margin-top:10px}
+
+/* NOTE BOX */
+.note-box{background:var(--black);border-radius:var(--r);padding:20px 24px;margin-bottom:10px}
+.note-box-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.note-box p{font-size:13px;color:rgba(255,255,255,.55);line-height:1.7}
+
+/* FORECAST WARNING */
+.sec-note{background:var(--black);border-radius:var(--r);padding:16px 20px;margin-bottom:12px;
+  font-size:13px;color:rgba(255,255,255,.55);line-height:1.65}
+.sec-note strong{color:var(--accent)}
+
+footer{background:var(--black);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;margin-top:40px}
+footer img{height:22px;opacity:.6}
+.ft{font-size:12px;color:rgba(255,255,255,.3)}
+
+@media(max-width:700px){
+  nav{padding:12px 16px}
+  .hero{padding:36px 16px 32px}
+  .section{padding:20px 16px 40px}
+  .body-grid,.calc-grid,.diff-grid,.results-row.three{grid-template-columns:1fr}
+  .info-block{border-right:none;border-bottom:1px solid var(--line)}
+  footer{padding:20px 16px;flex-direction:column;gap:10px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <img class="nav-logo" id="nav-logo" alt="Locomotive Digital">
+    <div class="nav-tag">KPI Довідник</div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSec('ads',this)">Реклама</button>
+    <button class="nav-tab" onclick="showSec('finance',this)">Фінанси клієнта</button>
+    <button class="nav-tab" onclick="showSec('forecast',this)">Прогнозування</button>
+  </div>
+</nav>
+
+<div class="hero">
+    <h1>KPI <em>Калькулятор</em></h1>
+</div>
+
+<!-- ═══ SECTION: ADS ═══ -->
+<div class="section active" id="sec-ads">
+<div class="sec-title"><h2>Ефективність реклами</h2><p>Основні метрики для оцінки рекламних кампаній</p></div>
+
+<div class="metric-card" id="c-diff" style="margin-bottom:2px">
+<div class="metric-head" onclick="tog('diff')" style="padding:18px 28px 14px">
+  <div><div class="m-badge" style="background:#333;color:var(--accent)">Порівняння</div><div class="m-name" style="font-size:15px">ROAS vs ROMI — в чому різниця?</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body" style="padding:0 28px 20px">
+  <div class="diff-grid">
+    <div class="diff-card">
+      <h4>ROAS</h4>
+      <p>Скільки виручки (доходу) принесла кожна вкладена у рекламу гривня. Не враховує собівартість і витрати бізнесу.</p>
+      <div class="diff-use">→ Використовуй коли клієнт хоче знати ефективність у виручці</div>
+    </div>
+    <div class="diff-card">
+      <h4>ROMI</h4>
+      <p>Прибуток від реклами з урахуванням маржі. Більш чесна метрика — показує чи реклама реально заробляє.</p>
+      <div class="diff-use">→ Використовуй коли хочеш показати реальну окупність інвестицій</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ROAS -->
+<div class="metric-card" id="c-roas">
+<div class="metric-head" onclick="tog('roas')">
+  <div><div class="m-badge">01</div><div class="m-name">ROAS</div><div class="m-def">Return on Ad Spend — повернення на рекламні витрати. Скільки гривень виручки приніс кожна вкладена у рекламу гривня.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>Для оцінки ефективності кампанії в цілому</li><li>Коли клієнт ставить ціль по виручці</li><li>Для порівняння різних кампаній між собою</li></ul></div>
+    <div class="info-block"><h4>Орієнтири</h4><p><strong style="color:#f87171">ROAS &lt; 100%</strong> — збиткова реклама<br><strong style="color:var(--orange)">100–300%</strong> — мінімальна окупність<br><strong style="color:var(--green)">300%+</strong> — хороший результат<br><em style="color:var(--muted);font-size:12px">E-commerce: зазвичай мінімум 400%</em></p></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формула</div><div class="formula">ROAS = (<em>Виручка від реклами</em> ÷ <em>Витрати на рекламу</em>) × 100%</div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Виручка від реклами (₴)</label><input type="number" id="roas-r" placeholder="150 000" oninput="calcROAS()"></div>
+      <div class="field"><label>Витрати на рекламу (₴)</label><input type="number" id="roas-s" placeholder="30 000" oninput="calcROAS()"></div>
+    </div>
+    <div class="results-row"><div class="result"><div class="r-lbl">ROAS</div><div class="r-val" id="roas-v">—</div><div class="r-hint" id="roas-h"></div><span id="roas-st"></span></div></div>
+    <div class="example"><div class="ex-lbl">Приклад</div><div class="ex-txt">Витрати <strong>30 000 ₴</strong>, виручка <strong>150 000 ₴</strong> → ROAS = <strong style="color:var(--accent)">500%</strong> — хороший результат.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ROMI -->
+<div class="metric-card" id="c-romi">
+<div class="metric-head" onclick="tog('romi')">
+  <div><div class="m-badge">02</div><div class="m-name">ROMI</div><div class="m-def">Return on Marketing Investment — повернення на маркетингові інвестиції з урахуванням маржі бізнесу.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>Коли хочеш показати реальну прибутковість реклами</li><li>Коли клієнт питає "чи заробляємо ми на рекламі?"</li><li>Для бізнесів з різною маржею на різні товари</li></ul></div>
+    <div class="info-block"><h4>Орієнтири</h4><p><strong style="color:#f87171">ROMI &lt; 0%</strong> — реклама в мінусі<br><strong style="color:var(--orange)">0–100%</strong> — окупається, але слабко<br><strong style="color:var(--green)">100%+</strong> — реклама приносить прибуток<br><em style="color:var(--muted);font-size:12px">ROMI завжди менший за ROAS на величину маржі</em></p></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формула</div><div class="formula">ROMI = ((<em>Виручка × Маржа%</em>) − <em>Витрати</em>) ÷ <em>Витрати</em> × 100%</div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Виручка від реклами (₴)</label><input type="number" id="romi-r" placeholder="150 000" oninput="calcROMI()"></div>
+      <div class="field"><label>Маржа бізнесу (%)</label><input type="number" id="romi-m" placeholder="40" oninput="calcROMI()"></div>
+      <div class="field"><label>Витрати на рекламу (₴)</label><input type="number" id="romi-s" placeholder="30 000" oninput="calcROMI()"></div>
+    </div>
+    <div class="results-row"><div class="result"><div class="r-lbl">ROMI</div><div class="r-val" id="romi-v">—</div><div class="r-hint" id="romi-h"></div><span id="romi-st"></span></div></div>
+    <div class="example"><div class="ex-lbl">Приклад</div><div class="ex-txt">Виручка <strong>150 000 ₴</strong>, маржа <strong>40%</strong>, витрати <strong>30 000 ₴</strong> → ROMI = <strong style="color:var(--accent)">100%</strong> — реклама окупилась двічі.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- CPL -->
+<div class="metric-card" id="c-cpl">
+<div class="metric-head" onclick="tog('cpl')">
+  <div><div class="m-badge">03</div><div class="m-name">CPL — Вартість ліда</div><div class="m-def">Cost Per Lead — скільки коштує залучення одного потенційного клієнта.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>Для оцінки ефективності лідогенерації</li><li>Для порівняння кампаній між собою</li><li>Для планування бюджету від цілі по лідах</li></ul></div>
+    <div class="info-block"><h4>Цільовий CPL</h4><p>Визначається разом з клієнтом виходячи з конверсії в продаж і середнього чеку.<br><br><em style="color:var(--muted);font-size:12px">CPL цільовий = Середній чек × Маржа × Конверсія в продаж</em></p></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формула</div><div class="formula">CPL = <em>Витрати на рекламу</em> ÷ <em>Кількість лідів</em></div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Витрати на рекламу (₴)</label><input type="number" id="cpl-s" placeholder="20 000" oninput="calcCPL()"></div>
+      <div class="field"><label>Кількість лідів</label><input type="number" id="cpl-l" placeholder="80" oninput="calcCPL()"></div>
+      <div class="field"><label>Цільовий CPL (₴) — необов'язково</label><input type="number" id="cpl-t" placeholder="300" oninput="calcCPL()"></div>
+    </div>
+    <div class="results-row"><div class="result"><div class="r-lbl">CPL</div><div class="r-val" id="cpl-v">—</div><div class="r-hint" id="cpl-h"></div><span id="cpl-st"></span></div></div>
+    <div class="example"><div class="ex-lbl">Приклад</div><div class="ex-txt">Витрати <strong>20 000 ₴</strong>, лідів <strong>80</strong> → CPL = <strong style="color:var(--accent)">250 ₴</strong></div></div>
+  </div>
+</div>
+</div>
+
+<!-- CPC -->
+<!-- CTR -->
+<div class="metric-card" id="c-ctr">
+<div class="metric-head" onclick="tog('ctr')">
+  <div><div class="m-badge">06</div><div class="m-name">CTR — Клікабельність</div><div class="m-def">Click-Through Rate — відсоток людей, які клікнули на рекламу. Показує наскільки оголошення чіпляє аудиторію.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>Для оцінки якості креативів</li><li>Для A/B тестів оголошень</li><li>Низький CTR = слабкий креатив або невідповідна аудиторія</li></ul></div>
+    <div class="info-block"><h4>Орієнтири</h4><p>Meta Ads: <strong style="color:#fff">1–3%</strong> норма, <strong style="color:var(--green)">3%+</strong> добре<br>Google Search: <strong style="color:var(--green)">5–10%+</strong><br>TikTok: <strong style="color:#fff">0.5–2%</strong></p></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формула</div><div class="formula">CTR = (<em>Кліки</em> ÷ <em>Покази</em>) × 100%</div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Кліків</label><input type="number" id="ctr-c" placeholder="3 000" oninput="calcCTR()"></div>
+      <div class="field"><label>Показів</label><input type="number" id="ctr-i" placeholder="200 000" oninput="calcCTR()"></div>
+    </div>
+    <div class="results-row"><div class="result"><div class="r-lbl">CTR</div><div class="r-val" id="ctr-v">—</div><span id="ctr-st"></span></div></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SECTION: FINANCE ═══ -->
+<div class="section" id="sec-finance">
+<div class="sec-title"><h2>Фінанси бізнесу клієнта</h2><p>Метрики для розуміння економіки клієнта і постановки реалістичних KPI</p></div>
+
+<!-- ТОЧКА БЕЗЗБИТКОВОСТІ -->
+<div class="metric-card" id="c-be">
+<div class="metric-head" onclick="tog('be')">
+  <div><div class="m-badge">01</div><div class="m-name">Точка беззбитковості реклами</div><div class="m-def">Мінімальна виручка від реклами, при якій вона не йде в мінус. Нижче цього порогу — реклама збиткова.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>На старті роботи — щоб знати мінімальний прийнятний ROAS</li><li>Коли клієнт питає "яку виручку має приносити реклама?"</li><li>Для розрахунку цільового ROAS</li></ul></div>
+    <div class="info-block"><h4>Зв'язок з ROAS</h4><p>ROAS беззбитковості = 1 ÷ Маржа<br><br>Якщо маржа 40% → мін. ROAS = 1 ÷ 0.4 = <strong style="color:#fff">250%</strong><br>Тобто на кожну ₴ реклами треба мінімум 2.5 ₴ виручки.</p></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формула</div><div class="formula">Виручка беззбитковості = <em>Витрати на рекламу</em> ÷ <em>Маржа (дробом)</em><br>ROAS беззбитковості = 1 ÷ <em>Маржа (дробом)</em> × 100%</div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Витрати на рекламу (₴)</label><input type="number" id="be-s" placeholder="30 000" oninput="calcBE()"></div>
+      <div class="field"><label>Маржа бізнесу (%)</label><input type="number" id="be-m" placeholder="40" oninput="calcBE()"></div>
+      <div class="field"><label>Фактична виручка (₴) — для перевірки</label><input type="number" id="be-r" placeholder="120 000" oninput="calcBE()"></div>
+    </div>
+    <div class="results-row"><div class="result"><div class="r-lbl">Мін. виручка / ROAS беззбитковості</div><div class="r-val sm" id="be-v">—</div><div class="r-hint" id="be-h"></div><span id="be-st"></span></div></div>
+    <div class="example"><div class="ex-lbl">Приклад</div><div class="ex-txt">Бюджет <strong>30 000 ₴</strong>, маржа <strong>40%</strong> → мін. виручка <strong style="color:var(--accent)">75 000 ₴</strong>, ROAS беззбитковості <strong style="color:var(--accent)">250%</strong>. Якщо виручка 120 000 ₴ — реклама в плюсі.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- МАРЖИНАЛЬНІСТЬ -->
+<div class="metric-card" id="c-margin">
+<div class="metric-head" onclick="tog('margin')">
+  <div><div class="m-badge">02</div><div class="m-name">Маржинальність</div><div class="m-def">Частка прибутку в ціні товару або послуги. Без маржі неможливо порахувати ROMI і точку беззбитковості.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>Завжди — як базовий показник для всіх розрахунків</li><li>Уточнюй у клієнта на початку роботи</li><li>Маржа ≠ націнка — це різні поняття!</li></ul></div>
+    <div class="info-block"><h4>Маржа vs Націнка</h4><p>Куплено за 600 ₴, продано за 1000 ₴:<br><strong style="color:#fff">Маржа</strong> = 400 ÷ 1000 = <strong style="color:var(--accent)">40%</strong><br><strong style="color:#fff">Націнка</strong> = 400 ÷ 600 = <strong style="color:var(--blue)">67%</strong><br><em style="color:var(--muted);font-size:12px">Клієнти часто плутають — уточнюй!</em></p></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формула</div><div class="formula">Маржа = (<em>Ціна продажу</em> − <em>Собівартість</em>) ÷ <em>Ціна продажу</em> × 100%</div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Ціна продажу (₴)</label><input type="number" id="mar-p" placeholder="1 000" oninput="calcMar()"></div>
+      <div class="field"><label>Собівартість (₴)</label><input type="number" id="mar-c" placeholder="600" oninput="calcMar()"></div>
+    </div>
+    <div class="results-row"><div class="result"><div class="r-lbl">Маржа / Націнка</div><div class="r-val" id="mar-v">—</div><div class="r-hint" id="mar-h"></div></div></div>
+  </div>
+</div>
+</div>
+
+<!-- LTV -->
+<div class="metric-card" id="c-ltv">
+<div class="metric-head" onclick="tog('ltv')">
+  <div><div class="m-badge">03</div><div class="m-name">LTV — Довічна цінність клієнта</div><div class="m-def">Life Time Value — скільки прибутку приносить один покупець за весь час співпраці з бізнесом клієнта.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>Щоб обгрунтувати допустимий CAC</li><li>Для бізнесів з повторними покупками</li><li>Щоб показати клієнту реальну цінність залученого покупця</li></ul></div>
+    <div class="info-block"><h4>Здорове співвідношення</h4><p><strong style="color:var(--green)">LTV ≥ 3× CAC</strong> — бізнес масштабується<br><strong style="color:var(--orange)">LTV 1–3× CAC</strong> — граничний режим<br><strong style="color:#f87171">LTV &lt; CAC</strong> — бізнес в мінусі<br><em style="color:var(--muted);font-size:12px">Здоровий бізнес: LTV мінімум втричі більше CAC</em></p></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формула</div><div class="formula">LTV = <em>Середній чек</em> × <em>Маржа%</em> × <em>Покупок на рік</em> × <em>Роки утримання</em></div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Середній чек (₴)</label><input type="number" id="ltv-ch" placeholder="2 000" oninput="calcLTV()"></div>
+      <div class="field"><label>Маржа (%)</label><input type="number" id="ltv-m" placeholder="40" oninput="calcLTV()"></div>
+      <div class="field"><label>Покупок на рік</label><input type="number" id="ltv-f" placeholder="4" oninput="calcLTV()"></div>
+      <div class="field"><label>Роки утримання</label><input type="number" id="ltv-y" placeholder="2" oninput="calcLTV()"></div>
+    </div>
+    <div class="results-row"><div class="result"><div class="r-lbl">LTV</div><div class="r-val" id="ltv-v">—</div><div class="r-hint" id="ltv-h"></div></div></div>
+    <div class="example"><div class="ex-lbl">Приклад</div><div class="ex-txt">Чек <strong>2 000 ₴</strong>, маржа <strong>40%</strong>, <strong>4 рази/рік</strong>, <strong>2 роки</strong> → LTV = <strong style="color:var(--accent)">6 400 ₴</strong></div></div>
+  </div>
+</div>
+</div>
+
+<!-- CAC -->
+<div class="metric-card" id="c-cac">
+<div class="metric-head" onclick="tog('cac')">
+  <div><div class="m-badge">04</div><div class="m-name">CAC — Вартість залучення клієнта</div><div class="m-def">Customer Acquisition Cost — скільки коштує залучити одного реального покупця (не ліда). Рахується від рекламного бюджету.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>Для оцінки реальної вартості нового покупця</li><li>Порівняти з LTV — чи окупається залучення</li><li>CAC = CPL ÷ Конверсія ліда в покупку</li></ul></div>
+    <div class="info-block"><h4>Орієнтири LTV:CAC</h4><p><strong style="color:var(--green)">3x+</strong> — відмінно, бізнес масштабується<br><strong style="color:var(--orange)">1–3x</strong> — граничний режим<br><strong style="color:#f87171">менше 1x</strong> — залучення дорожче LTV</p></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формула</div><div class="formula">CAC = <em>Витрати на рекламу</em> ÷ <em>Кількість нових покупців</em></div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Витрати на рекламу (₴)</label><input type="number" id="cac-s" placeholder="30 000" oninput="calcCAC()"></div>
+      <div class="field"><label>Нових покупців</label><input type="number" id="cac-b" placeholder="40" oninput="calcCAC()"></div>
+      <div class="field"><label>LTV (₴) — для оцінки співвідношення</label><input type="number" id="cac-l" placeholder="6 400" oninput="calcCAC()"></div>
+    </div>
+    <div class="results-row"><div class="result"><div class="r-lbl">CAC / LTV:CAC</div><div class="r-val sm" id="cac-v">—</div><div class="r-hint" id="cac-h"></div><span id="cac-st"></span></div></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SECTION: FORECAST ═══ -->
+<div class="section" id="sec-forecast">
+<div class="sec-title"><h2>Прогнозування</h2><p>Два сценарії: від бюджету або від цілі</p></div>
+
+<div class="note-box">
+  <div class="note-box-label">Важливо розуміти</div>
+  <p>Прогноз — це <strong style="color:#ccc">орієнтир, а не гарантія</strong>. Реальні показники залежать від якості креативів, посадкової сторінки, сезонності і відділу продажів клієнта. Завжди озвучуй клієнту <strong style="color:#ccc">діапазон (мінімум–максимум)</strong>, а не одну цифру — це захищає тебе від завищених очікувань.</p>
+</div>
+
+<!-- ВІД БЮДЖЕТУ -->
+<div class="metric-card" id="c-fc1">
+<div class="metric-head" onclick="tog('fc1')">
+  <div><div class="m-badge">01</div><div class="m-name">Від бюджету → Прогноз лідів і продажів</div><div class="m-def">Знаємо бюджет і середні показники — прогнозуємо скільки лідів, продажів і виручки отримаємо.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>Клієнт каже: "є бюджет X — що отримаємо?"</li><li>На старті для встановлення очікувань</li><li>При захисті або збільшенні бюджету</li></ul></div>
+    <div class="info-block"><h4>Звідки брати показники</h4><ul><li>CPL — з попередніх кампаній або бенчмарки ніші</li><li>Конверсія в продаж — у відділі продажів клієнта</li><li>Якщо даних немає — бери консервативний сценарій</li></ul></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формули</div><div class="formula">Ліди = <em>Бюджет</em> ÷ <em>CPL</em><br>Продажі = <em>Ліди</em> × <em>Конверсія%</em><br>Виручка = <em>Продажі</em> × <em>Середній чек</em></div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Рекламний бюджет (₴)</label><input type="number" id="f1-b" placeholder="30 000" oninput="calcF1()"></div>
+      <div class="field"><label>Очікуваний CPL (₴)</label><input type="number" id="f1-cpl" placeholder="250" oninput="calcF1()"></div>
+      <div class="field"><label>Конверсія ліда в продаж (%)</label><input type="number" id="f1-cv" placeholder="20" oninput="calcF1()"></div>
+      <div class="field"><label>Середній чек (₴)</label><input type="number" id="f1-ch" placeholder="3 000" oninput="calcF1()"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px">
+      <div class="result"><div class="r-lbl">Ліди</div><div class="r-val" id="f1-leads">—</div></div>
+      <div class="result"><div class="r-lbl">Продажі</div><div class="r-val" id="f1-sales">—</div></div>
+      <div class="result"><div class="r-lbl">Виручка</div><div class="r-val sm" id="f1-rev">—</div></div>
+    </div>
+    <div class="example"><div class="ex-lbl">Приклад</div><div class="ex-txt">Бюджет <strong>30 000 ₴</strong>, CPL <strong>250 ₴</strong>, конверсія <strong>20%</strong>, чек <strong>3 000 ₴</strong> → Ліди: <strong style="color:var(--accent)">120</strong>, Продажі: <strong style="color:var(--accent)">24</strong>, Виручка: <strong style="color:var(--accent)">72 000 ₴</strong></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ВІД ЦІЛІ -->
+<div class="metric-card" id="c-fc2">
+<div class="metric-head" onclick="tog('fc2')">
+  <div><div class="m-badge">02</div><div class="m-name">Від цілі → Необхідний бюджет</div><div class="m-def">Знаємо скільки продажів потрібно — рахуємо який бюджет для цього необхідний.</div></div>
+  <div class="m-toggle">▼</div>
+</div>
+<div class="metric-body">
+  <div class="body-grid">
+    <div class="info-block yl"><h4>Коли використовувати</h4><ul><li>Клієнт каже: "хочу X продажів — скільки вкласти?"</li><li>При плануванні бюджету на місяць</li><li>Для обгрунтування збільшення бюджету</li></ul></div>
+    <div class="info-block"><h4>Порада</h4><p>Давай клієнту діапазон:<br><strong style="color:#fff">Мінімум</strong> — від оптимістичного CPL<br><strong style="color:#fff">Максимум</strong> — від консервативного CPL<br><em style="color:var(--muted);font-size:12px">Ніколи не давай одну цифру без пояснення що це прогноз</em></p></div>
+  </div>
+  <div class="formula-box"><div class="formula-lbl">Формули</div><div class="formula">Потрібно лідів = <em>Ціль продажів</em> ÷ <em>Конверсія%</em><br>Бюджет = <em>Потрібно лідів</em> × <em>CPL</em></div></div>
+  <div class="calc-wrap">
+    <div class="calc-lbl">Калькулятор</div>
+    <div class="calc-grid">
+      <div class="field"><label>Ціль: кількість продажів</label><input type="number" id="f2-g" placeholder="30" oninput="calcF2()"></div>
+      <div class="field"><label>Конверсія ліда в продаж (%)</label><input type="number" id="f2-cv" placeholder="20" oninput="calcF2()"></div>
+      <div class="field"><label>CPL оптимістичний (₴)</label><input type="number" id="f2-co" placeholder="200" oninput="calcF2()"></div>
+      <div class="field"><label>CPL консервативний (₴)</label><input type="number" id="f2-cc" placeholder="350" oninput="calcF2()"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px">
+      <div class="result"><div class="r-lbl">Потрібно лідів</div><div class="r-val" id="f2-leads">—</div></div>
+      <div class="result"><div class="r-lbl">Бюджет (мін)</div><div class="r-val sm" id="f2-bmin">—</div></div>
+      <div class="result"><div class="r-lbl">Бюджет (макс)</div><div class="r-val sm" id="f2-bmax">—</div></div>
+    </div>
+    <div class="example"><div class="ex-lbl">Приклад</div><div class="ex-txt">Ціль <strong>30 продажів</strong>, конверсія <strong>20%</strong>, CPL <strong>200–350 ₴</strong> → Лідів: <strong style="color:var(--accent)">150</strong>, Бюджет: від <strong style="color:var(--accent)">30 000</strong> до <strong style="color:var(--accent)">52 500 ₴</strong></div></div>
+  </div>
+</div>
+</div>
+</div>
+
+<footer>
+  <img id="ft-logo" alt="Locomotive Digital">
+  <div class="ft">KPI Калькулятор · Відділ РМ і Таргету · внутрішній документ</div>
+</footer>
+
+
+<script>
+const L='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';
+document.getElementById('nav-logo').src='data:image/png;base64,'+L;
+document.getElementById('ft-logo').src='data:image/png;base64,'+L;
+
+function showSec(key,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+key).classList.add('active');
+  btn.classList.add('active');
+}
+function tog(id){document.getElementById('c-'+id).classList.toggle('open')}
+function fmt(n,d=0){if(isNaN(n)||!isFinite(n))return'—';return n.toLocaleString('uk-UA',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmtM(n){return fmt(n,0)+' ₴'}
+function fmtP(n){return fmt(n,1)+'%'}
+function setSt(id,val,good,warn){
+  const el=document.getElementById(id);if(!el)return;
+  if(!val||isNaN(val)){el.innerHTML='';return}
+  const cls=val>=good?'ok':val>=warn?'warn':'bad';
+  const txt=val>=good?'✓ Хороший результат':val>=warn?'⚠ Граничний результат':'✗ Нижче норми';
+  el.innerHTML=`<span class="r-status ${cls}">${txt}</span>`;
+}
+function calcROAS(){const r=+document.getElementById('roas-r').value,s=+document.getElementById('roas-s').value;const v=document.getElementById('roas-v'),h=document.getElementById('roas-h');if(!r||!s){v.textContent='—';h.textContent='';setSt('roas-st',null);return}const roas=r/s*100;v.textContent=fmtP(roas);h.textContent=`На 1 ₴ реклами → ${fmt(r/s,2)} ₴ виручки`;setSt('roas-st',roas,300,100);}
+function calcROMI(){const r=+document.getElementById('romi-r').value,m=+document.getElementById('romi-m').value,s=+document.getElementById('romi-s').value;const v=document.getElementById('romi-v'),h=document.getElementById('romi-h');if(!r||!m||!s){v.textContent='—';h.textContent='';setSt('romi-st',null);return}const romi=((r*(m/100))-s)/s*100;v.textContent=fmtP(romi);h.textContent=`Прибуток від реклами: ${fmtM((r*(m/100))-s)}`;setSt('romi-st',romi,100,0);}
+function calcCPL(){const s=+document.getElementById('cpl-s').value,l=+document.getElementById('cpl-l').value,t=+document.getElementById('cpl-t').value;const v=document.getElementById('cpl-v'),h=document.getElementById('cpl-h'),st=document.getElementById('cpl-st');if(!s||!l){v.textContent='—';h.textContent='';st.innerHTML='';return}const cpl=s/l;v.textContent=fmtM(cpl);if(t){const d=(cpl-t)/t*100;h.textContent=d<=0?`На ${fmt(Math.abs(d),1)}% нижче цільового`:`На ${fmt(d,1)}% вище цільового`;st.innerHTML=d<=0?'<span class="r-status ok">✓ В межах цілі</span>':'<span class="r-status warn">⚠ Вище цільового CPL</span>';}else{h.textContent='';st.innerHTML='';}}
+function calcCTR(){const c=+document.getElementById('ctr-c').value,i=+document.getElementById('ctr-i').value;const v=document.getElementById('ctr-v');if(!c||!i){v.textContent='—';setSt('ctr-st',null);return}const ctr=c/i*100;v.textContent=fmtP(ctr);setSt('ctr-st',ctr,3,1);}
+function calcBE(){const s=+document.getElementById('be-s').value,m=+document.getElementById('be-m').value,r=+document.getElementById('be-r').value;const v=document.getElementById('be-v'),h=document.getElementById('be-h'),st=document.getElementById('be-st');if(!s||!m){v.textContent='—';h.textContent='';st.innerHTML='';return}const minR=s/(m/100),minROAS=(1/(m/100))*100;v.textContent=`${fmtM(minR)} / ROAS ${fmtP(minROAS)}`;if(r){const ok=r>=minR;h.textContent=ok?`Виручка вище беззбитковості на ${fmtM(r-minR)}`:`Дефіцит ${fmtM(minR-r)}`;st.innerHTML=ok?'<span class="r-status ok">✓ Реклама в плюсі</span>':'<span class="r-status bad">✗ Реклама в мінусі</span>';}}
+function calcMar(){const p=+document.getElementById('mar-p').value,c=+document.getElementById('mar-c').value;const v=document.getElementById('mar-v'),h=document.getElementById('mar-h');if(!p||!c){v.textContent='—';h.textContent='';return}v.textContent=`Маржа: ${fmtP((p-c)/p*100)}`;h.textContent=`Націнка: ${fmtP((p-c)/c*100)} · Прибуток: ${fmtM(p-c)}`;}
+function calcLTV(){const ch=+document.getElementById('ltv-ch').value,m=+document.getElementById('ltv-m').value,f=+document.getElementById('ltv-f').value,y=+document.getElementById('ltv-y').value;const v=document.getElementById('ltv-v'),h=document.getElementById('ltv-h');if(!ch||!m||!f||!y){v.textContent='—';h.textContent='';return}const ltv=ch*(m/100)*f*y;v.textContent=fmtM(ltv);h.textContent=`${fmtM(ch*(m/100))} прибутку за покупку × ${f} × ${y} р.`;}
+function calcCAC(){const s=+document.getElementById('cac-s').value,b=+document.getElementById('cac-b').value,l=+document.getElementById('cac-l').value;const v=document.getElementById('cac-v'),h=document.getElementById('cac-h'),st=document.getElementById('cac-st');if(!s||!b){v.textContent='—';h.textContent='';st.innerHTML='';return}const cac=s/b;v.textContent=fmtM(cac);if(l){const ratio=l/cac;h.textContent=`LTV:CAC = ${fmt(ratio,1)}x`;const cls=ratio>=3?'ok':ratio>=1?'warn':'bad';const txt=ratio>=3?'✓ Відмінне співвідношення':ratio>=1?'⚠ Граничне співвідношення':'✗ Залучення дорожче LTV';st.innerHTML=`<span class="r-status ${cls}">${txt}</span>`;}}
+function calcF1(){const b=+document.getElementById('f1-b').value,cpl=+document.getElementById('f1-cpl').value,cv=+document.getElementById('f1-cv').value,ch=+document.getElementById('f1-ch').value;const leads=b&&cpl?Math.round(b/cpl):null;const sales=leads&&cv?Math.round(leads*(cv/100)):null;const rev=sales&&ch?sales*ch:null;document.getElementById('f1-leads').textContent=leads?fmt(leads):'—';document.getElementById('f1-sales').textContent=sales?fmt(sales):'—';document.getElementById('f1-rev').textContent=rev?fmtM(rev):'—';}
+function calcF2(){const g=+document.getElementById('f2-g').value,cv=+document.getElementById('f2-cv').value,co=+document.getElementById('f2-co').value,cc=+document.getElementById('f2-cc').value;const leads=g&&cv?Math.ceil(g/(cv/100)):null;document.getElementById('f2-leads').textContent=leads?fmt(leads):'—';document.getElementById('f2-bmin').textContent=leads&&co?fmtM(leads*co):'—';document.getElementById('f2-bmax').textContent=leads&&cc?fmtM(leads*cc):'—';}
+</script>
+</body>
+</html>
